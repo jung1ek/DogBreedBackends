@@ -72,3 +72,37 @@ def predict_dog_breed(request):
         response['Accuracy'].append(str(accuracy+'%'))
     return JsonResponse(response)
 
+
+def predict(request):
+    if request.method == 'POST':
+        # Assuming the input is an image file in the request
+        image_file = request.FILES['image']
+
+        # Load and preprocess the image
+        image = Image.open(image_file).convert('RGB')
+            
+        input_tensor = vit_valid_transform_fn(image).to(device).unsqueeze(0)
+        with torch.no_grad():
+            output = ViT(input_tensor)
+        probabilities = torch.nn.functional.softmax(output[0],dim=0)
+
+            # Get the predicted dog breed and its probability
+        predicted_breed_index = torch.argmax(probabilities).item()
+        predicted_breed_probability = probabilities[predicted_breed_index].item()
+
+            # Return the predicted dog breed and probability as JSON
+        
+        breed = idx_to_breeds[str(predicted_breed_index)]
+        accuracy = f'{predicted_breed_probability*100:.2f}'
+        response = {'Breed':[],'Accuracy':[]} 
+            
+        if (float(accuracy)<75.0):
+            value, index = torch.topk(probabilities, 3)
+            for i,idx in enumerate(index):
+                response['Breed'].append(idx_to_breeds[str(idx.item())])
+                response['Accuracy'].append(str(f'{value[i].item()*100:.2f}')+'%')
+        else:
+            response['Breed'].append(idx_to_breeds[str(predicted_breed_index)])
+            response['Accuracy'].append(str(accuracy+'%'))
+        return JsonResponse(response)
+            
