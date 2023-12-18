@@ -82,10 +82,20 @@ WSGI_APPLICATION = 'DogBreedBackend.wsgi.application'
 #     }
 # }
 
+#DATABASES = {
+#    'default': {
+#       'ENGINE': 'djongo',
+#       'NAME': 'dogs',
+#   }
+#}
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'Dogs',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'dogs',
+        'USER': 'root',
+        'PASSWORD': 'diptara3',
+        'HOST':'localhost',
+        'PORT':'3306',
     }
 }
 # DATABASES = {

@@ -49,7 +49,7 @@ idx.close()
 
 # method to invoke while api request.
 def predict_dog_breed(request):
-    path = os.path.join("recognition/5cdc90efc60b2cdde2086f0728e90bf8.jpg")
+    path = os.path.join("recognition/0f341494dfeb1318b50d43a4ae74e138.jpg")
     image = Image.open(path).convert('RGB')
     input_tensor = vit_valid_transform_fn(image).to(device).unsqueeze(0)
     with torch.no_grad():
