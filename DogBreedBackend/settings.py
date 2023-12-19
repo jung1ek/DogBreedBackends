@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-j6up0k652*zsl=o*wtw%((98tv(#&dfbh2mz9)&3r(&o9g30^f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['198.211.99.20', 'localhost', '127.0.0.1','3eb3-110-44-123-194.ngrok-free.app',]
+ALLOWED_HOSTS = ['198.211.99.20', 'localhost','192.168.254.198', '127.0.0.1',]
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djongo',
     'recognition',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -82,22 +83,22 @@ WSGI_APPLICATION = 'DogBreedBackend.wsgi.application'
 #     }
 # }
 
-#DATABASES = {
-#    'default': {
-#       'ENGINE': 'djongo',
-#       'NAME': 'dogs',
-#   }
-#}
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dogs',
-        'USER': 'root',
-        'PASSWORD': 'diptara3',
-        'HOST':'localhost',
-        'PORT':'3306',
-    }
+   'default': {
+      'ENGINE': 'djongo',
+      'NAME': 'Dogs',
+  }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'dogs',
+#         'USER': 'root',
+#         'PASSWORD': 'diptara3',
+#         'HOST':'localhost',
+#         'PORT':'3306',
+#     }
+# }
 # DATABASES = {
 #         'default': {
 #             'ENGINE': 'djongo',

@@ -3,5 +3,6 @@ from django.urls import path
 
 app_name = 'recognition'
 urlpatterns = [
-     path('recog/', views.predict_dog_breed)
+     path('predict_from_vit/', views.predict_from_vit_standford),
+     path('predict_from_convnet/', views.predict_from_convnet),
 ]
