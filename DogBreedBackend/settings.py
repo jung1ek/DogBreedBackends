@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-j6up0k652*zsl=o*wtw%((98tv(#&dfbh2mz9)&3r(&o9g30^f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['198.211.99.20', 'localhost','192.168.254.198', '127.0.0.1',]
+ALLOWED_HOSTS = ['198.211.99.20', 'localhost','192.168.254.198', '127.0.0.1','10.10.11.186','10.10.11.138','10.10.10.1']
 
 
 # Application definition
@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'djongo',
     'recognition',
     'rest_framework',
+    'breed_details',
+    'corsheaders',
+    'chatbot'
 ]
 
 MIDDLEWARE = [
@@ -50,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'DogBreedBackend.urls'
@@ -83,22 +87,22 @@ WSGI_APPLICATION = 'DogBreedBackend.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-   'default': {
-      'ENGINE': 'djongo',
-      'NAME': 'Dogs',
-  }
-}
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'dogs',
-#         'USER': 'root',
-#         'PASSWORD': 'diptara3',
-#         'HOST':'localhost',
-#         'PORT':'3306',
-#     }
+#    'default': {
+#       'ENGINE': 'djongo',
+#       'NAME': 'Dogs',
+#   }
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'Pupscan',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST':'localhost',
+        'PORT':'3306',
+    }
+}
 # DATABASES = {
 #         'default': {
 #             'ENGINE': 'djongo',

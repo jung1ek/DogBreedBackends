@@ -175,7 +175,7 @@ def predict_from_vit_standford(request):
     
 
 @csrf_exempt
-@api_view(['POST'])
+@api_view(['POST','GET'])
 def predict_from_both(request):
     if request.method == 'POST':
         # Assuming the input is an image file in the request
@@ -228,6 +228,9 @@ def predict_from_both(request):
                     response['Breed'].append(ConvNet.config.id2label[idx.item()])
                     response['Accuracy'].append(str(f'{value[i].item()*100:.2f}')+'%')
         return JsonResponse(response)
+    elif request.method == 'GET':
+        #return JsonResponse([{'Model':"ViT",'Breed':'German','Accuracy':'99%'}],safe=False)
+        return JsonResponse({'Model':"ViT",'Breed':'German','Accuracy':'99%'})
         
 
 

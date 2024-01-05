@@ -1,21 +1,10 @@
+from django.http import HttpResponse
+from django.http import JsonResponse
 from openai import OpenAI
 import os
 import openai
-
-# CLIENT = OpenAI(api_key='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')
-
-# straem=CLIENT.chat.completions.create(
-#         model="gpt-3.5-turbo",
-#         messages=[
-#             {"role":"user","content":"What does the fox say?"}
-#         ]
-# )
-# print(straem.choices[0].message)
-
-# Create your views here.
-
-#def index(request):
- #   return JsonResponse({"asd":"Hello World"})
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 
 client = openai.OpenAI(api_key='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')
 
@@ -39,8 +28,9 @@ thread = client.beta.threads.create()
 
 
 #json_data = messages['choices'][0]['text']
-
-def retrieve():
+@csrf_exempt
+@api_view(['GET'])
+def retrive(request):
     message = client.beta.threads.messages.create(
     thread_id=thread.id,
     role="user",
@@ -58,16 +48,9 @@ def retrieve():
             run_id=run.id)
         if run.status=='completed':
             break
-    print(run.status)
     messages = client.beta.threads.messages.list(
     thread_id=thread.id
     )
     message_data = messages.data[0].content[0].text.value
-    print(messages)
-    print(message_data)
-
-
-if __name__==__name__:
-    retrieve()
-
-
+    return JsonResponse({'system':message_data})
+    
