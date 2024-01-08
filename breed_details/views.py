@@ -23,6 +23,5 @@ def specific_breed_details(request):
 
 @csrf_exempt
 @api_view(['GET'])
-def breeds_list(request):
-    
+def breed_list(request):
     return JsonResponse(list(), safe=False)
