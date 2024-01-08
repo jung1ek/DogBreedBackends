@@ -2,20 +2,6 @@ from openai import OpenAI
 import os
 import openai
 
-# CLIENT = OpenAI(api_key='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')
-
-# straem=CLIENT.chat.completions.create(
-#         model="gpt-3.5-turbo",
-#         messages=[
-#             {"role":"user","content":"What does the fox say?"}
-#         ]
-# )
-# print(straem.choices[0].message)
-
-# Create your views here.
-
-#def index(request):
- #   return JsonResponse({"asd":"Hello World"})
 
 client = openai.OpenAI(api_key='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')
 

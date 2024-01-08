@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from transformers import AutoImageProcessor, AutoModelForImageClassification
 from recognition.vit_selftrained import PretrainViT
+from breed_details.models import DogBreedDetails
 # Create your views here.
 
 
@@ -45,6 +46,9 @@ vit_valid_transform_fn = transforms.Compose([
     transforms.Normalize(mean=torch.Tensor([0.485, 0.456, 0.406]), std=torch.Tensor([0.229, 0.224, 0.225])),
 ])
 
+json_load = open('recognition/idx_to_breed.json')
+idexes = json.load(json_load)
+json_load.close()
 
 @csrf_exempt
 @api_view(['POST'])
@@ -55,7 +59,6 @@ def predict_from_vit(request):
     if request.method == 'POST':
         # Assuming the input is an image file in the request
         image_file = request.FILES['image']
-
         # Load and preprocess the image
         image = Image.open(image_file).convert('RGB')
         ViT = viTModel()
@@ -194,10 +197,8 @@ def predict_from_both(request):
         
         # Get the predicted dog breed and its probability
         predicted_breed_probability = probabilities[predicted_class_idx].item()
-        response = {'Model':[],'Breed':[],'Accuracy':[]}
+        response = []
         if (predicted_breed_probability<0.5):
-            
-            response['Model'] = 'Vit'
             ViTStandford = viTStandfordModel()
             logits = vitRunStandford(image)
             probabilities = torch.nn.functional.softmax(logits[0],dim=0)
@@ -206,32 +207,39 @@ def predict_from_both(request):
             # Get the predicted dog breed and its probability
             predicted_breed_probability = probabilities[predicted_class_idx].item()
             if (predicted_breed_probability>0.75):
+                result = {}
                 breed = ViTStandford.config.id2label[predicted_class_idx]
                 accuracy = f'{predicted_breed_probability*100:.2f}'
-                response['Breed'] = breed
-                response['Accuracy'] = accuracy
+                result['id'] = 1
+                
+                response['breed'] = breed
+                response['accuracy'] = accuracy
+                response.append(result)
             else:
+                result = {}
                 value, index = torch.topk(probabilities, 3)
                 for i,idx in enumerate(index):
                     response['Breed'].append(ViTStandford.config.id2label[idx.item()])
                     response['Accuracy'].append(str(f'{value[i].item()*100:.2f}')+'%')
+                    response.append(result)
 
         else:
-            response['Model'] = 'Conv'
             if(predicted_breed_probability>0.80):
+                result = {}
                 breed = ConvNet.config.id2label[predicted_class_idx]
                 response['Breed'] = breed
                 response['Accuracy'] = predicted_breed_probability
+                response.append(result)
             else:
+                result = {}
                 value, index = torch.topk(probabilities, 3)
                 for i,idx in enumerate(index):
                     response['Breed'].append(ConvNet.config.id2label[idx.item()])
                     response['Accuracy'].append(str(f'{value[i].item()*100:.2f}')+'%')
-        return JsonResponse(response)
-    elif request.method == 'GET':
-        #return JsonResponse([{'Model':"ViT",'Breed':'German','Accuracy':'99%'}],safe=False)
-        return JsonResponse({'Model':"ViT",'Breed':'German','Accuracy':'99%'})
-        
+                    response.append(result)
+        # return JsonResponse(response)
+        return JsonResponse([{'Avatar':"https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2017/11/06153939/Akita-head-portrait-outdoors1.jpg",
+                          'Breed':'German','Accuracy':'99%'}], safe=False)
 
 
 def vitRunStandford(image):
@@ -240,3 +248,8 @@ def vitRunStandford(image):
     with torch.no_grad():
         logits = ViTStandford(**input_tensor).logits
     return logits
+
+
+def fetch_breed(id):
+    DogBreedDetails.objects.get(pk=id);
+    

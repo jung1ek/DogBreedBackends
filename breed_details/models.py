@@ -11,26 +11,22 @@ class DogType(models.Model):
                                       ("Herding Group","Herding Group"),("Miscellaneous Class","Miscellaneous Class"),
                                       ("Foundation Stock Service","Foundation Stock Service")]
     type = models.CharField(max_length=50,choices=type_choices)
+    def __str__(self):
+        return f"{self.type}"
 
 class DogBreedDetails(models.Model):
-    type_choices = [(1,"Sporting Dog"), (2,"Hound Dog"), (3,"Working Dog"),
-                                      (4,"Terrier Group"),(5,"Toy Group"),
-                                      (6,"Non-Sporting Group"),
-                                      (7,"Herding Group"),(8,"Miscellaneous Class"),
-                                      (9,"Foundation Stock Service")]
     breed = models.CharField(max_length=50)
     description = models.TextField()
     character = models.CharField(max_length=50)
     height = models.CharField(max_length=20)
     weight = models.CharField(max_length=30)
     life_expentancy = models.CharField(max_length=30)
-    aggressiveness = models.CharField(max_length=10)
+    aggressiveness = models.CharField(max_length=50)
     avatar = models.CharField(max_length=255)
     image0= models.CharField(max_length=255,null=True)
     image1= models.CharField(max_length=255,null=True)
     image2= models.CharField(max_length=255,null=True)
-    # origin_id = models.ForeignKey(DogOrigin, on_delete=models.CASCADE,null=True)
-    type_id = models.ForeignKey(DogType,on_delete=models.CASCADE)
+    type_id = models.ForeignKey(DogType,on_delete=models.CASCADE,)
     akc_link = models.CharField(max_length=255)
     
 
