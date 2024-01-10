@@ -46,8 +46,8 @@ vit_valid_transform_fn = transforms.Compose([
     transforms.Normalize(mean=torch.Tensor([0.485, 0.456, 0.406]), std=torch.Tensor([0.229, 0.224, 0.225])),
 ])
 
-json_load = open('recognition/idx_to_breed.json')
-idexes = json.load(json_load)
+json_load = open('recognition/modelidx_to_dbidx.json')
+indexes = json.load(json_load)
 json_load.close()
 
 @csrf_exempt
@@ -178,7 +178,7 @@ def predict_from_vit_standford(request):
     
 
 @csrf_exempt
-@api_view(['POST','GET'])
+@api_view(['POST'])
 def predict_from_both(request):
     if request.method == 'POST':
         # Assuming the input is an image file in the request
@@ -198,7 +198,7 @@ def predict_from_both(request):
         # Get the predicted dog breed and its probability
         predicted_breed_probability = probabilities[predicted_class_idx].item()
         response = []
-        if (predicted_breed_probability<0.5):
+        if (predicted_breed_probability<0.60):
             ViTStandford = viTStandfordModel()
             logits = vitRunStandford(image)
             probabilities = torch.nn.functional.softmax(logits[0],dim=0)
@@ -206,40 +206,87 @@ def predict_from_both(request):
             predicted_class_idx = logits.argmax(-1).item()
             # Get the predicted dog breed and its probability
             predicted_breed_probability = probabilities[predicted_class_idx].item()
-            if (predicted_breed_probability>0.75):
+            if (predicted_breed_probability>0.40):
                 result = {}
-                breed = ViTStandford.config.id2label[predicted_class_idx]
                 accuracy = f'{predicted_breed_probability*100:.2f}'
-                result['id'] = 1
-                
-                response['breed'] = breed
-                response['accuracy'] = accuracy
+                result['id'] = indexes["vitidx_to_dbidx"][str(predicted_class_idx)]
+                detail = DogBreedDetails.objects.get(id=result['id'])
+                result['breed'] = detail.breed
+                result['accuracy'] = accuracy
+                result['description'] = detail.description
+                result['character']=detail.character
+                result['height']=detail.height
+                result['Weight']=detail.weight
+                result['life_expentancy']=detail.life_expentancy
+                result['akc_link']=detail.akc_link
+                result['image2']=detail.image2
+                result['image0']=detail.image0
+                result['image1']=detail.image1
+                result['avatar'] =detail.avatar
                 response.append(result)
             else:
-                result = {}
                 value, index = torch.topk(probabilities, 3)
                 for i,idx in enumerate(index):
-                    response['Breed'].append(ViTStandford.config.id2label[idx.item()])
-                    response['Accuracy'].append(str(f'{value[i].item()*100:.2f}')+'%')
+                    result = {}
+                    result['id'] = indexes["vitidx_to_dbidx"][str(idx.item())]
+                    result['breed'] = DogBreedDetails.objects.get(id=result['id']).breed
+                    result['accuracy'] = f'{value[i].item()*100:.2f}'
+                    result['avatar'] = DogBreedDetails.objects.get(id=result['id']).avatar
+                    detail = DogBreedDetails.objects.get(id=result['id'])
+                    result['breed'] = detail.breed
+                    result['description'] = detail.description
+                    result['character']=detail.character
+                    result['height']=detail.height
+                    result['Weight']=detail.weight
+                    result['life_expentancy']=detail.life_expentancy
+                    result['akc_link']=detail.akc_link
+                    result['image2']=detail.image2
+                    result['image0']=detail.image0
+                    result['image1']=detail.image1
                     response.append(result)
 
         else:
-            if(predicted_breed_probability>0.80):
+            if(predicted_breed_probability>0.75):
                 result = {}
-                breed = ConvNet.config.id2label[predicted_class_idx]
-                response['Breed'] = breed
-                response['Accuracy'] = predicted_breed_probability
+                result['id'] = indexes["convnetidx_to_dbidx"][str(predicted_class_idx)]
+                result['accuracy'] = f'{predicted_breed_probability*100:.2f}'
+                detail = DogBreedDetails.objects.get(id=result['id'])
+                result['description'] = detail.description
+                result['breed']=detail.breed
+                result['character']=detail.character
+                result['height']=detail.height
+                result['Weight']=detail.weight
+                result['life_expentancy']=detail.life_expentancy
+                result['akc_link']=detail.akc_link
+                result['image2']=detail.image2
+                result['image0']=detail.image0
+                result['image1']=detail.image1
+                result['avatar'] =detail.avatar
                 response.append(result)
             else:
-                result = {}
                 value, index = torch.topk(probabilities, 3)
                 for i,idx in enumerate(index):
-                    response['Breed'].append(ConvNet.config.id2label[idx.item()])
-                    response['Accuracy'].append(str(f'{value[i].item()*100:.2f}')+'%')
+                    result = {}
+                    result['id'] = indexes["convnetidx_to_dbidx"][str(idx.item())]
+                    result['breed'] = DogBreedDetails.objects.get(id=result['id']).breed
+                    result['accuracy'] = f'{value[i].item()*100:.2f}'
+                    result['avatar'] = DogBreedDetails.objects.get(id=result['id']).avatar
+                    detail = DogBreedDetails.objects.get(id=result['id'])
+                    result['breed'] = detail.breed
+                    result['description'] = detail.description
+                    result['character']=detail.character
+                    result['height']=detail.height
+                    result['Weight']=detail.weight
+                    result['life_expentancy']=detail.life_expentancy
+                    result['akc_link']=detail.akc_link
+                    result['image2']=detail.image2
+                    result['image0']=detail.image0
+                    result['image1']=detail.image1
+                    result['avatar'] =detail.avatar
                     response.append(result)
+        
         # return JsonResponse(response)
-        return JsonResponse([{'Avatar':"https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2017/11/06153939/Akita-head-portrait-outdoors1.jpg",
-                          'Breed':'German','Accuracy':'99%'}], safe=False)
+        return JsonResponse(response, safe=False)
 
 
 def vitRunStandford(image):
@@ -249,7 +296,3 @@ def vitRunStandford(image):
         logits = ViTStandford(**input_tensor).logits
     return logits
 
-
-def fetch_breed(id):
-    DogBreedDetails.objects.get(pk=id);
-    
